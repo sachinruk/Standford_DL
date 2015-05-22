@@ -10,7 +10,7 @@ function [f,g] = linear_regression(theta, X,y)
   m=size(X,2);
   n=size(X,1);
 
-  f=0;
+%   f=0;
   g=zeros(size(theta));
 
   %
@@ -22,3 +22,5 @@ function [f,g] = linear_regression(theta, X,y)
   %        computed gradient in 'g'.
   
 %%% YOUR CODE HERE %%%
+f=0.5*sum((y'-X'*theta).^2);
+g=-X*(y'-X'*theta);

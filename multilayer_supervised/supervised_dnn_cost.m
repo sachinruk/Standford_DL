@@ -35,14 +35,15 @@ end;
 
 %% compute cost
 %%% YOUR CODE HERE %%%
-ind=sub2ind(size(hAct{i}),1:length(labels),labels);
+ind=sub2ind(size(hAct{i}),labels',1:length(labels));
 cost=-sum(log(hAct{i}(ind)));
 %% compute gradients using backpropagation
 %%% YOUR CODE HERE %%%
 while i>0
     if i==(numHidden+1)
         gradStack{i}=hAct{i};
-        gradStack{i}(ind)=sum(gradStack{i}(ind)-1)';
+        gradStack{i}(ind)=gradStack{i}(ind)-1;
+        gradStack{i}=sum(gradStack{i},2);
     else
         gradStack{i}=stack{i}.W'*gradStack{i+1}.*hAct{i}.*(1-hAct{i});
     end
@@ -50,6 +51,16 @@ while i>0
 end
 %% compute weight penalty cost and gradient for non-bias terms
 %%% YOUR CODE HERE %%%
+i=1;
+while i<=(numHidden+1)
+    gradStack{i}.b=gradStack{i};
+    if i==1
+        gradStack{i}.W=gradStack{i}.b*data;
+    else
+        gradStack{i}.W=gradStack{i}.b*hAct{i};
+    end
+    i=i+1;
+end
 
 %% reshape gradients into vector
 [grad] = stack2params(gradStack);

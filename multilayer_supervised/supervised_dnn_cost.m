@@ -13,17 +13,20 @@ end;
 %% reshape into network
 stack = params2stack(theta, ei);
 numHidden = numel(ei.layer_sizes) - 1;
-hAct = cell(numHidden+1, 1);
+hAct = cell(numHidden+2, 1);
 gradStack = cell(numHidden+1, 1);
+gradStackDelta = cell(numHidden+2, 1);
+hAct{1}=data;
 %% forward prop
 %%% YOUR CODE HERE %%%
-for i=1:(numHidden+1)
-    if i==1 %input unit
-        hAct{i}=sigmoid(bsxfun(@plus,stack{i}.W*data,stack{i}.b));
-    elseif i==(numHidden+1) %output unit
-        hAct{i}=softmax(bsxfun(@plus,stack{i}.W*hAct{i-1},stack{i}.b));
+for i=2:(numHidden+2)
+    z=bsxfun(@plus,stack{i-1}.W*hAct{i-1},stack{i-1}.b);
+%     if i==1 %input unit
+%         hAct{i}=sigmoid(bsxfun(@plus,stack{i}.W*data,stack{i}.b));
+    if i==(numHidden+2) %output unit
+        hAct{i}=softmax(z);
     else
-        hAct{i}=sigmoid(stack{i}.W*hAct{i-1}+stack{i}.b);
+        hAct{i}=sigmoid(z);
     end
 end
 %% return here if only predictions desired.
@@ -39,26 +42,24 @@ ind=sub2ind(size(hAct{i}),labels',1:length(labels));
 cost=-sum(log(hAct{i}(ind)));
 %% compute gradients using backpropagation
 %%% YOUR CODE HERE %%%
-while i>0
-    if i==(numHidden+1)
-        gradStack{i}=hAct{i};
-        gradStack{i}(ind)=gradStack{i}(ind)-1;
-        gradStack{i}=sum(gradStack{i},2);
-    else
-        gradStack{i}=stack{i}.W'*gradStack{i+1}.*hAct{i}.*(1-hAct{i});
-    end
+gradStackDelta{i}=hAct{i};
+gradStackDelta{i}(ind)=gradStackDelta{i}(ind)-1;
+while i>1
     i=i-1;
+%     if i==(numHidden+1)
+        
+%         gradStack{i}=sum(gradStack{i},2);
+%     else
+    gradStackDelta{i}=stack{i}.W'*gradStackDelta{i+1}.*hAct{i}.*(1-hAct{i});
+%     end
+    
 end
 %% compute weight penalty cost and gradient for non-bias terms
 %%% YOUR CODE HERE %%%
 i=1;
 while i<=(numHidden+1)
-    gradStack{i}.b=gradStack{i};
-    if i==1
-        gradStack{i}.W=gradStack{i}.b*data;
-    else
-        gradStack{i}.W=gradStack{i}.b*hAct{i};
-    end
+    gradStack{i}.b=sum(gradStackDelta{i+1},2);
+    gradStack{i}.W=gradStackDelta{i+1}*hAct{i}';
     i=i+1;
 end
 

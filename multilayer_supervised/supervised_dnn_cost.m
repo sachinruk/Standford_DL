@@ -15,7 +15,7 @@ stack = params2stack(theta, ei);
 numHidden = numel(ei.layer_sizes) - 1;
 hAct = cell(numHidden+2, 1);
 gradStack = cell(numHidden+1, 1);
-gradStackDelta = cell(numHidden+2, 1);
+% gradStackDelta = cell(numHidden+2, 1);
 hAct{1}=data;
 %% forward prop
 %%% YOUR CODE HERE %%%
@@ -42,26 +42,29 @@ ind=sub2ind(size(hAct{i}),labels',1:length(labels));
 cost=-sum(log(hAct{i}(ind)));
 %% compute gradients using backpropagation
 %%% YOUR CODE HERE %%%
-gradStackDelta{i}=hAct{i};
-gradStackDelta{i}(ind)=gradStackDelta{i}(ind)-1;
+gradDelta=hAct{i};
+gradDelta(ind)=gradDelta(ind)-1;
 while i>1
     i=i-1;
 %     if i==(numHidden+1)
         
 %         gradStack{i}=sum(gradStack{i},2);
 %     else
-    gradStackDelta{i}=stack{i}.W'*gradStackDelta{i+1}.*hAct{i}.*(1-hAct{i});
+    gradStack{i}.b=sum(gradDelta,2);
+    gradStack{i}.W=gradDelta*hAct{i}';
+    gradDelta=stack{i}.W'*gradDelta.*hAct{i}.*(1-hAct{i});
 %     end
+    
     
 end
 %% compute weight penalty cost and gradient for non-bias terms
 %%% YOUR CODE HERE %%%
-i=1;
-while i<=(numHidden+1)
-    gradStack{i}.b=sum(gradStackDelta{i+1},2);
-    gradStack{i}.W=gradStackDelta{i+1}*hAct{i}';
-    i=i+1;
-end
+% i=1;
+% while i<=(numHidden+1)
+%     gradStack{i}.b=sum(gradStackDelta{i+1},2);
+%     gradStack{i}.W=gradStackDelta{i+1}*hAct{i}';
+%     i=i+1;
+% end
 
 %% reshape gradients into vector
 [grad] = stack2params(gradStack);

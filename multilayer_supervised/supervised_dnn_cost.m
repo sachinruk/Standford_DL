@@ -52,7 +52,7 @@ while i>1
 %         gradStack{i}=sum(gradStack{i},2);
 %     else
     gradStack{i}.b=sum(gradDelta,2);
-    gradStack{i}.W=gradDelta*hAct{i}';
+    gradStack{i}.W=gradDelta*hAct{i}'+ei.lambda*stack{i}.W;
     gradDelta=stack{i}.W'*gradDelta.*hAct{i}.*(1-hAct{i});
 %     end
     

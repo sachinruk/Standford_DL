@@ -1,3 +1,7 @@
+clear all
+close all
+clc
+
 % runs training procedure for supervised multilayer network
 % softmax output layer with cross entropy loss function
 
@@ -23,10 +27,12 @@ addpath('../ex1');
 
 % dimension of input features
 ei.input_dim = 784;
+% idx=randperm(784,100);
+% idx2=randperm(6e4,1e3);
 % number of output classes
 ei.output_dim = 10;
 % sizes of all hidden layers and the output layer
-ei.layer_sizes = [20, ei.output_dim];
+ei.layer_sizes = [256, ei.output_dim];
 % scaling parameter for l2 weight regularization penalty
 ei.lambda = 0;
 % which type of activation function to use in hidden layers
@@ -42,14 +48,14 @@ options = [];
 options.display = 'iter';
 options.maxFunEvals = 1e6;
 options.Method = 'lbfgs';
-options.derivativeCheck='on';
+% options.derivativeCheck='on';
 
 %% run training
 [opt_params,opt_value,exitflag,output] = minFunc(@supervised_dnn_cost,...
     params,options,ei, data_train, labels_train);
 
-derivativeCheck(@supervised_dnn_cost,...
-    params,1,1,ei, data_train, labels_train);
+% derivativeCheck(@supervised_dnn_cost,...
+%     params,1,1,ei, data_train(idx,idx2), labels_train(idx2));
 
 %% compute accuracy on the test and train set
 [~, ~, pred] = supervised_dnn_cost( opt_params, ei, data_test, [], true);

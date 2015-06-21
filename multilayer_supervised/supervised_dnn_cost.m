@@ -33,6 +33,7 @@ end
 if po
   cost = -1; ceCost = -1; wCost = -1; numCorrect = -1;
   grad = [];  
+  pred_prob=hAct{i};
   return;
 end;
 

@@ -40,7 +40,7 @@ end;
 %% compute cost
 %%% YOUR CODE HERE %%%
 ind=sub2ind(size(hAct{i}),labels',1:length(labels));
-cost=-sum(log(hAct{i}(ind)));
+cost=-sum(log(hAct{i}(ind)))+0.5*ei.lambda*sum(theta.^2);
 %% compute gradients using backpropagation
 %%% YOUR CODE HERE %%%
 gradDelta=hAct{i};

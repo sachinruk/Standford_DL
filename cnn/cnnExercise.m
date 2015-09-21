@@ -23,6 +23,7 @@ poolDim = 3;          % dimension of pooling region
 
 % Here we load MNIST training images
 addpath ../common/;
+addpath ../ex1/;
 images = loadMNISTImages('../common/train-images-idx3-ubyte');
 images = reshape(images,imageDim,imageDim,numImages);
 

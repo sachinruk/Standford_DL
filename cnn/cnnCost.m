@@ -65,14 +65,15 @@ convDim = imageDim-filterDim+1; % dimension of convolved output
 outputDim = (convDim)/poolDim; % dimension of subsampled output
 
 % convDim x convDim x numFilters x numImages tensor for storing activations
-activations = zeros(convDim,convDim,numFilters,numImages);
+% activations = zeros(convDim,convDim,numFilters,numImages);
 
 % outputDim x outputDim x numFilters x numImages tensor for storing
 % subsampled activations
-activationsPooled = zeros(outputDim,outputDim,numFilters,numImages);
+% activationsPooled = zeros(outputDim,outputDim,numFilters,numImages);
 
 %%% YOUR CODE HERE %%%
-
+activations = cnnConvolve(filterDim, numFilters, images, Wc, bc);
+activationsPooled = cnnPool(poolDim, activations);
 % Reshape activations into 2-d matrix, hiddenSize x numImages,
 % for Softmax layer
 activationsPooled = reshape(activationsPooled,[],numImages);
@@ -85,9 +86,9 @@ activationsPooled = reshape(activationsPooled,[],numImages);
 
 % numClasses x numImages for storing probability that each image belongs to
 % each class.
-probs = zeros(numClasses,numImages);
-
+% probs = zeros(numClasses,numImages);
 %%% YOUR CODE HERE %%%
+probs=normalise(bsxfun(@plus,Wd*activationsPooled,bd));
 
 %%======================================================================
 %% STEP 1b: Calculate Cost
@@ -95,9 +96,11 @@ probs = zeros(numClasses,numImages);
 %  calculate above to evaluate the cross entropy objective.  Store your
 %  results in cost.
 
-cost = 0; % save objective into cost
+% cost = 0; % save objective into cost
 
 %%% YOUR CODE HERE %%%
+ind=sub2ind(size(probs),1:length(y),y);
+cost=-sum(log(probs(ind)));
 
 % Makes predictions given probs and returns without backproagating errors.
 if pred

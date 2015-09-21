@@ -40,7 +40,7 @@ for imageNum = 1:numImages
   for filterNum = 1:numFilters
 
     % convolution of image with feature matrix
-    convolvedImage = zeros(convDim, convDim);
+    %convolvedImage = zeros(convDim, convDim);
 
     % Obtain the feature (filterDim x filterDim) needed during the convolution
 

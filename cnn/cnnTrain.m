@@ -21,9 +21,9 @@ poolDim = 2;      % Pooling dimension, (should divide imageDim-filterDim+1)
 
 % Load MNIST Train
 addpath ../common/;
-images = loadMNISTImages('../common/train-images-idx3-ubyte');
+images = loadMNISTImages('../common/train-images.idx3-ubyte');
 images = reshape(images,imageDim,imageDim,[]);
-labels = loadMNISTLabels('../common/train-labels-idx1-ubyte');
+labels = loadMNISTLabels('../common/train-labels.idx1-ubyte');
 labels(labels==0) = 10; % Remap 0 to 10
 
 % Initialize Parameters
@@ -51,7 +51,7 @@ if DEBUG
     db_theta = cnnInitParams(imageDim,db_filterDim,db_numFilters,...
                 db_poolDim,numClasses);
     
-    [cost grad] = cnnCost(db_theta,db_images,db_labels,numClasses,...
+    [cost, grad] = cnnCost(db_theta,db_images,db_labels,numClasses,...
                                 db_filterDim,db_numFilters,db_poolDim);
     
 

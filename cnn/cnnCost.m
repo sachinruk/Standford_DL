@@ -88,7 +88,7 @@ activationsPooled = reshape(activationsPooled,[],numImages);
 % each class.
 % probs = zeros(numClasses,numImages);
 %%% YOUR CODE HERE %%%
-probs=normalise(bsxfun(@plus,Wd*activationsPooled,bd));
+probs=normalise(bsxfun(@plus,Wd*activationsPooled,bd),2);
 
 %%======================================================================
 %% STEP 1b: Calculate Cost
@@ -99,7 +99,7 @@ probs=normalise(bsxfun(@plus,Wd*activationsPooled,bd));
 % cost = 0; % save objective into cost
 
 %%% YOUR CODE HERE %%%
-ind=sub2ind(size(probs),1:length(y),y);
+ind=sub2ind(size(probs),1:length(labels),labels);
 cost=-sum(log(probs(ind)));
 
 % Makes predictions given probs and returns without backproagating errors.
@@ -119,6 +119,43 @@ end;
 %  error with respect to the pooling layer for each filter and each image.  
 %  Use the kron function and a matrix of ones to do this upsampling 
 %  quickly.
+
+% Upsample the incoming error using kron
+% delta_pool = (1/poolDim^2) * kron(delta,ones(poolDim));
+
+gradDelta=probs;
+gradDelta(ind)=gradDelta(ind)-1;
+bd_grad = sum(gradDelta,2);
+Wd_grad = gradDelta*probs';
+delta_pool = (1/poolDim^2) * kron(gradDelta,ones(poolDim));
+delta_conv = delta_pool.*activations.*(1-activations);
+% filter = rot90(squeeze(filter),2);
+%       
+%     % Obtain the image
+%     im = squeeze(images(:, :, imageNum));
+% 
+%     % Convolve "filter" with "im", adding the result to convolvedImage
+%     % be sure to do a 'valid' convolution
+% 
+%     %%% YOUR CODE HERE %%%
+%     convolvedImage=conv2(im,filter,'valid');
+    
+
+% while i>1
+%     i=i-1;
+% %     if i==(numHidden+1)
+%         
+% %         gradStack{i}=sum(gradStack{i},2);
+% %     else
+%     gradStack{i}.b=sum(gradDelta,2);
+%     gradStack{i}.W=gradDelta*hAct{i}'+ei.lambda*stack{i}.W;
+%     gradDelta=stack{i}.W'*gradDelta.*hAct{i}.*(1-hAct{i});
+% %     end
+%     
+%     
+% end
+
+
 
 %%% YOUR CODE HERE %%%
 

@@ -129,7 +129,10 @@ gradDelta(ind)=gradDelta(ind)-1;
 bd_grad = sum(gradDelta,2);
 Wd_grad = gradDelta*activationsPooled';
 delta_l=(Wd'*gradDelta).*activationsPooled.*(1-activationsPooled);
-delta= (1/poolDim^2) * kron(delta_l).*activations.*(1-activations);
+delta= reshape((1/poolDim^2) * kron(delta_l,ones(poolDim)),size(activations))...
+                                        .*activations.*(1-activations);
+
+delta = reshape(delta,convDim,convDim,numFilters,numImages);
 % for i=1:numFilters
 %     delta_pool = (1/poolDim^2) * kron(Wc(:,:,i)'*gradDelta,ones(poolDim));
 % %     delta_conv = delta_pool.*activationsPooled.*(1-activationsPooled);
@@ -177,10 +180,10 @@ for imageNum = 1:numImages
   for filterNum = 1:numFilters
     % Obtain the feature (filterDim x filterDim) needed during the convolution
     %%% YOUR CODE HERE %%%
-    filter=W(:,:,filterNum);
+    filter=delta(:,:,filterNum,imageNum);
     filter = rot90(squeeze(filter),2);
     % Obtain the image
-    im = squeeze(images(:, :, imageNum));
+    im = squeeze(activations(:, :,filterNum,imageNum));
     % Convolve "filter" with "im", adding the result to convolvedImage
     % be sure to do a 'valid' convolution
     %%% YOUR CODE HERE %%%
@@ -188,8 +191,8 @@ for imageNum = 1:numImages
     % Add the bias unit
     % Then, apply the sigmoid function to get the hidden activation
     %%% YOUR CODE HERE %%%   
-    convolvedFeatures(:, :, filterNum, imageNum) = ...
-                                    sigmoid(convolvedImage+b(filterNum));
+%     convolvedFeatures(:, :, filterNum, imageNum) = ...
+%                                     sigmoid(convolvedImage+b(filterNum));
   end
 end
 

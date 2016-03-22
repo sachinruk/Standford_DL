@@ -42,9 +42,9 @@ numImages = size(images,3); % number of images
                         poolDim,numClasses);
 
 % Same sizes as Wc,Wd,bc,bd. Used to hold gradient w.r.t above params.
-% Wc_grad = zeros(size(Wc));
+Wc_grad = zeros(size(Wc));
 % Wd_grad = zeros(size(Wd));
-% bc_grad = zeros(size(bc));
+bc_grad = zeros(size(bc));
 % bd_grad = zeros(size(bd));
 
 %%======================================================================
@@ -77,7 +77,7 @@ activationsPooled = cnnPool(poolDim, activations);
 % Reshape activations into 2-d matrix, hiddenSize x numImages,
 % for Softmax layer
 activationsPooled = reshape(activationsPooled,[],numImages);
-activations = reshape(activations,[],numImages);
+% activations = reshape(activations,[],numImages);
 
 %% Softmax Layer
 %  Forward propagate the pooled activations calculated above into a
@@ -89,7 +89,7 @@ activations = reshape(activations,[],numImages);
 % each class.
 % probs = zeros(numClasses,numImages);
 %%% YOUR CODE HERE %%%
-probs=normalise(bsxfun(@plus,Wd*activationsPooled,bd),2);
+probs=normalise(bsxfun(@plus,Wd*activationsPooled,bd),1);
 
 %%======================================================================
 %% STEP 1b: Calculate Cost
@@ -100,7 +100,7 @@ probs=normalise(bsxfun(@plus,Wd*activationsPooled,bd),2);
 % cost = 0; % save objective into cost
 
 %%% YOUR CODE HERE %%%
-ind=sub2ind(size(probs),1:length(labels),labels');
+ind=sub2ind(size(probs),labels',1:length(labels));
 cost=-sum(log(probs(ind)));
 
 % Makes predictions given probs and returns without backproagating errors.
@@ -128,10 +128,11 @@ gradDelta=probs;
 gradDelta(ind)=gradDelta(ind)-1;
 bd_grad = sum(gradDelta,2);
 Wd_grad = gradDelta*activationsPooled';
-delta_l=(Wd'*gradDelta).*activationsPooled.*(1-activationsPooled);
-delta= reshape((1/poolDim^2) * kron(delta_l,ones(poolDim)),size(activations))...
+delta_l = (Wd'*gradDelta);
+delta= reshape((1/poolDim^2)*kron(delta_l,ones(poolDim)),size(activations))...
                                         .*activations.*(1-activations);
-
+% .*activationsPooled.*(1-activationsPooled)
+% *
 delta = reshape(delta,convDim,convDim,numFilters,numImages);
 % for i=1:numFilters
 %     delta_pool = (1/poolDim^2) * kron(Wc(:,:,i)'*gradDelta,ones(poolDim));
@@ -176,24 +177,31 @@ delta = reshape(delta,convDim,convDim,numFilters,numImages);
 %  for that filter with each image and aggregate over images.
 
 %%% YOUR CODE HERE %%%
-for imageNum = 1:numImages
-  for filterNum = 1:numFilters
+% activations = reshape(activations,convDim,convDim,numFilters,numImages);
+for filterNum = 1:numFilters
+%     filter = sum(delta(:,:,filterNum,:),4);
+%     filter = rot90(squeeze(filter),2);
+    for imageNum = 1:numImages  
     % Obtain the feature (filterDim x filterDim) needed during the convolution
     %%% YOUR CODE HERE %%%
-    filter=delta(:,:,filterNum,imageNum);
+    filter = delta(:,:,filterNum,imageNum);
     filter = rot90(squeeze(filter),2);
     % Obtain the image
-    im = squeeze(activations(:, :,filterNum,imageNum));
+    im = squeeze(images(:, :,imageNum));
     % Convolve "filter" with "im", adding the result to convolvedImage
     % be sure to do a 'valid' convolution
     %%% YOUR CODE HERE %%%
     convolvedImage=conv2(im,filter,'valid');
+    Wc_grad(:,:,filterNum) = Wc_grad(:,:,filterNum) + convolvedImage;
+    bc_grad(filterNum) = bc_grad(filterNum) + sum(filter(:));
     % Add the bias unit
     % Then, apply the sigmoid function to get the hidden activation
     %%% YOUR CODE HERE %%%   
 %     convolvedFeatures(:, :, filterNum, imageNum) = ...
 %                                     sigmoid(convolvedImage+b(filterNum));
-  end
+    end
+    
+%     bc_grad(filterNum) = sum(filter(:));
 end
 
 

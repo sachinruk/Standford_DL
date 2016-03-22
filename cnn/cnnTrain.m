@@ -7,7 +7,7 @@
 %  layer convolutional nerual network. In this exercise, you will only
 %  need to modify cnnCost.m and cnnminFuncSGD.m. You will not need to 
 %  modify this file.
-
+clc
 %%======================================================================
 %% STEP 0: Initialize Parameters and Load Data
 %  Here we initialize some parameters used for the exercise.
@@ -47,8 +47,9 @@ if DEBUG
     db_numFilters = 2;
     db_filterDim = 9;
     db_poolDim = 5;
-    db_images = images(:,:,1:10);
-    db_labels = labels(1:10);
+    range = 1; %1:10
+    db_images = images(:,:,range);
+    db_labels = labels(range);
     db_theta = cnnInitParams(imageDim,db_filterDim,db_numFilters,...
                 db_poolDim,numClasses);
     

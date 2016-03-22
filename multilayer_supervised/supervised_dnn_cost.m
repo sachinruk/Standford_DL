@@ -24,7 +24,7 @@ for i=2:(numHidden+2)
 %     if i==1 %input unit
 %         hAct{i}=sigmoid(bsxfun(@plus,stack{i}.W*data,stack{i}.b));
     if i==(numHidden+2) %output unit
-        hAct{i}=softmax(z);
+        hAct{i}=normalise(z,1);
     else
         hAct{i}=sigmoid(z);
     end

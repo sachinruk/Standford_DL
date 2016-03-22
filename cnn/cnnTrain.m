@@ -11,7 +11,7 @@ clc
 %%======================================================================
 %% STEP 0: Initialize Parameters and Load Data
 %  Here we initialize some parameters used for the exercise.
-
+rng(1);
 % Configuration
 imageDim = 28;
 numClasses = 10;  % Number of classes (MNIST images fall into 10 classes)
@@ -44,10 +44,10 @@ DEBUG=true;  % set this to true to check gradient
 if DEBUG
     % To speed up gradient checking, we will use a reduced network and
     % a debugging data set
-    db_numFilters = 2;
+    db_numFilters = 1;
     db_filterDim = 9;
     db_poolDim = 5;
-    range = 1; %1:10
+    range = 1:2; %1:10
     db_images = images(:,:,range);
     db_labels = labels(range);
     db_theta = cnnInitParams(imageDim,db_filterDim,db_numFilters,...
@@ -64,6 +64,7 @@ if DEBUG
  
     % Use this to visually compare the gradients side by side
     disp([numGrad grad]);
+    disp([numGrad./grad]);
     
     diff = norm(numGrad-grad)/norm(numGrad+grad);
     % Should be small. In our implementation, these values are usually 

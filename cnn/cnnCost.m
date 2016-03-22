@@ -77,7 +77,7 @@ activationsPooled = cnnPool(poolDim, activations);
 % Reshape activations into 2-d matrix, hiddenSize x numImages,
 % for Softmax layer
 activationsPooled = reshape(activationsPooled,[],numImages);
-% activations = reshape(activations,[],numImages);
+activations = reshape(activations,[],numImages);
 
 %% Softmax Layer
 %  Forward propagate the pooled activations calculated above into a
@@ -129,11 +129,14 @@ gradDelta(ind)=gradDelta(ind)-1;
 bd_grad = sum(gradDelta,2);
 Wd_grad = gradDelta*activationsPooled';
 delta_l = (Wd'*gradDelta);
-delta= reshape((1/poolDim^2)*kron(delta_l,ones(poolDim)),size(activations))...
+delta= reshape((1/poolDim^2)*kron(reshape(delta_l,outputDim,outputDim,numFilters,numImages),ones(poolDim)),size(activations))...
                                         .*activations.*(1-activations);
+% delta= (1/poolDim^2)*kron(reshape(delta_l,4,4),ones(poolDim))...
+%                                          .*activations.*(1-activations);
+
 % .*activationsPooled.*(1-activationsPooled)
 % *
-delta = reshape(delta,convDim,convDim,numFilters,numImages);
+% delta = reshape(delta,convDim,convDim,numFilters,numImages);
 % for i=1:numFilters
 %     delta_pool = (1/poolDim^2) * kron(Wc(:,:,i)'*gradDelta,ones(poolDim));
 % %     delta_conv = delta_pool.*activationsPooled.*(1-activationsPooled);

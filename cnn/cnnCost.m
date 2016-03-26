@@ -77,7 +77,7 @@ activationsPooled = cnnPool(poolDim, activations);
 % Reshape activations into 2-d matrix, hiddenSize x numImages,
 % for Softmax layer
 activationsPooled = reshape(activationsPooled,[],numImages);
-activations = reshape(activations,[],numImages);
+% activations = reshape(activations,[],numImages);
 
 %% Softmax Layer
 %  Forward propagate the pooled activations calculated above into a
@@ -129,8 +129,10 @@ gradDelta(ind)=gradDelta(ind)-1;
 bd_grad = sum(gradDelta,2);
 Wd_grad = gradDelta*activationsPooled';
 delta_l = (Wd'*gradDelta);
-delta= reshape((1/poolDim^2)*kron(reshape(delta_l,outputDim,outputDim,numFilters,numImages),ones(poolDim)),size(activations))...
-                                        .*activations.*(1-activations);
+delta_l = reshape(delta_l,outputDim,outputDim,numFilters,numImages);
+% delta= (1/poolDim^2)*kron(delta_l,ones(poolDim))...
+%                                         .*activations.*(1-activations);
+% delta = reshape(delta,outputDim,outputDim,numFilters,numImages);
 % delta= (1/poolDim^2)*kron(reshape(delta_l,4,4),ones(poolDim))...
 %                                          .*activations.*(1-activations);
 
@@ -181,13 +183,16 @@ delta= reshape((1/poolDim^2)*kron(reshape(delta_l,outputDim,outputDim,numFilters
 
 %%% YOUR CODE HERE %%%
 % activations = reshape(activations,convDim,convDim,numFilters,numImages);
+w_blowup = (1/poolDim^2)*ones(poolDim);
 for filterNum = 1:numFilters
 %     filter = sum(delta(:,:,filterNum,:),4);
 %     filter = rot90(squeeze(filter),2);
     for imageNum = 1:numImages  
     % Obtain the feature (filterDim x filterDim) needed during the convolution
     %%% YOUR CODE HERE %%%
-    filter = delta(:,:,filterNum,imageNum);
+    act_z = activations(:,:,filterNum,imageNum);
+    filter = kron(delta_l(:,:,filterNum,imageNum),w_blowup).*act_z.*(1-act_z);
+%     filter = delta(:,:,filterNum,imageNum);
     filter = rot90(squeeze(filter),2);
     % Obtain the image
     im = squeeze(images(:, :,imageNum));

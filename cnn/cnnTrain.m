@@ -44,10 +44,10 @@ DEBUG=true;  % set this to true to check gradient
 if DEBUG
     % To speed up gradient checking, we will use a reduced network and
     % a debugging data set
-    db_numFilters = 1;
+    db_numFilters = 2;
     db_filterDim = 9;
     db_poolDim = 5;
-    range = 1:2; %1:10
+    range = 1:10;
     db_images = images(:,:,range);
     db_labels = labels(range);
     db_theta = cnnInitParams(imageDim,db_filterDim,db_numFilters,...

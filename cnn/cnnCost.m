@@ -129,49 +129,13 @@ gradDelta(ind)=gradDelta(ind)-1;
 bd_grad = sum(gradDelta,2);
 Wd_grad = gradDelta*activationsPooled';
 delta_l = (Wd'*gradDelta);
-delta_l = reshape(delta_l,outputDim,outputDim,numFilters,numImages);
-% delta= (1/poolDim^2)*kron(delta_l,ones(poolDim))...
-%                                         .*activations.*(1-activations);
-% delta = reshape(delta,outputDim,outputDim,numFilters,numImages);
-% delta= (1/poolDim^2)*kron(reshape(delta_l,4,4),ones(poolDim))...
-%                                          .*activations.*(1-activations);
+delta = kron(delta_l,(1/poolDim^2)*ones(poolDim));
 
-% .*activationsPooled.*(1-activationsPooled)
-% *
-% delta = reshape(delta,convDim,convDim,numFilters,numImages);
-% for i=1:numFilters
-%     delta_pool = (1/poolDim^2) * kron(Wc(:,:,i)'*gradDelta,ones(poolDim));
-% %     delta_conv = delta_pool.*activationsPooled.*(1-activationsPooled);
-% end
-% filter = rot90(squeeze(filter),2);
-%       
-%     % Obtain the image
-%     im = squeeze(images(:, :, imageNum));
-% 
-%     % Convolve "filter" with "im", adding the result to convolvedImage
-%     % be sure to do a 'valid' convolution
-% 
-%     %%% YOUR CODE HERE %%%
-%     convolvedImage=conv2(im,filter,'valid');
-    
-
-% while i>1
-%     i=i-1;
-% %     if i==(numHidden+1)
-%         
-% %         gradStack{i}=sum(gradStack{i},2);
-% %     else
-%     gradStack{i}.b=sum(gradDelta,2);
-%     gradStack{i}.W=gradDelta*hAct{i}'+ei.lambda*stack{i}.W;
-%     gradDelta=stack{i}.W'*gradDelta.*hAct{i}.*(1-hAct{i});
-% %     end
-%     
-%     
-% end
-
-
-
-%%% YOUR CODE HERE %%%
+%the following few steps is to reshape the delta matrix properly
+delta =  reshape(delta,convDim,outputDim,numFilters,poolDim,numImages);
+delta = permute(delta,[1 4 2 3 5]); %most crucial step
+delta = reshape(delta,[convDim convDim numFilters numImages]);
+delta = delta.*activations.*(1-activations); %multiply by f'(z)
 
 %%======================================================================
 %% STEP 1d: Gradient Calculation
@@ -182,17 +146,11 @@ delta_l = reshape(delta_l,outputDim,outputDim,numFilters,numImages);
 %  for that filter with each image and aggregate over images.
 
 %%% YOUR CODE HERE %%%
-% activations = reshape(activations,convDim,convDim,numFilters,numImages);
-w_blowup = (1/poolDim^2)*ones(poolDim);
 for filterNum = 1:numFilters
-%     filter = sum(delta(:,:,filterNum,:),4);
-%     filter = rot90(squeeze(filter),2);
     for imageNum = 1:numImages  
     % Obtain the feature (filterDim x filterDim) needed during the convolution
     %%% YOUR CODE HERE %%%
-    act_z = activations(:,:,filterNum,imageNum);
-    filter = kron(delta_l(:,:,filterNum,imageNum),w_blowup).*act_z.*(1-act_z);
-%     filter = delta(:,:,filterNum,imageNum);
+    filter = delta(:,:,filterNum,imageNum);
     filter = rot90(squeeze(filter),2);
     % Obtain the image
     im = squeeze(images(:, :,imageNum));
@@ -204,12 +162,7 @@ for filterNum = 1:numFilters
     bc_grad(filterNum) = bc_grad(filterNum) + sum(filter(:));
     % Add the bias unit
     % Then, apply the sigmoid function to get the hidden activation
-    %%% YOUR CODE HERE %%%   
-%     convolvedFeatures(:, :, filterNum, imageNum) = ...
-%                                     sigmoid(convolvedImage+b(filterNum));
     end
-    
-%     bc_grad(filterNum) = sum(filter(:));
 end
 
 

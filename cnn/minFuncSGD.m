@@ -59,7 +59,7 @@ for e = 1:epochs
         mb_labels = labels(rp(s:s+minibatch-1));
 
         % evaluate the objective function on the next minibatch
-        [cost grad] = funObj(theta,mb_data,mb_labels);
+        [cost, grad] = funObj(theta,mb_data,mb_labels);
         
         % Instructions: Add in the weighted velocity vector to the
         % gradient evaluated above scaled by the learning rate.
@@ -67,7 +67,11 @@ for e = 1:epochs
         % sgd update rule
         
         %%% YOUR CODE HERE %%%
-        
+%         thetac = theta + mom*velocity-alpha*grad;
+%         velocity = thetac - theta;
+%         theta = thetac;
+        velocity = mom * velocity + alpha * grad;
+        theta = theta - velocity;
         fprintf('Epoch %d: Cost on iteration %d is %f\n',e,it,cost);
     end;
 

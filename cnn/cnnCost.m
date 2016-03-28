@@ -89,7 +89,7 @@ activationsPooled = reshape(activationsPooled,[],numImages);
 % each class.
 % probs = zeros(numClasses,numImages);
 %%% YOUR CODE HERE %%%
-probs=normalise(bsxfun(@plus,Wd*activationsPooled,bd),1);
+[probs, lnp]=normalise(bsxfun(@plus,Wd*activationsPooled,bd),1);
 
 %%======================================================================
 %% STEP 1b: Calculate Cost
@@ -100,8 +100,8 @@ probs=normalise(bsxfun(@plus,Wd*activationsPooled,bd),1);
 % cost = 0; % save objective into cost
 
 %%% YOUR CODE HERE %%%
-ind=sub2ind(size(probs),labels',1:length(labels));
-cost=-sum(log(probs(ind)));
+ind=sub2ind(size(lnp),labels',1:length(labels));
+cost=-sum(lnp(ind));
 
 % Makes predictions given probs and returns without backproagating errors.
 if pred
@@ -168,5 +168,8 @@ end
 
 %% Unroll gradient into grad vector for minFunc
 grad = [Wc_grad(:) ; Wd_grad(:) ; bc_grad(:) ; bd_grad(:)];
+
+cost = cost/ numImages;
+grad = grad/ numImages;
 
 end
